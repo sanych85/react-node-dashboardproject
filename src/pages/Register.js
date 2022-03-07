@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FormRow, Logo, Alert } from '../components';
 import Wrapper from '../assets/wrappers/RegisterPage';
+import { useAppContext } from '../context/appContext';
 
 const initialState = {
   name: '',
@@ -12,18 +13,27 @@ const initialState = {
 
 const Register = () => {
   const [values, setValues] = useState(initialState);
+  const {isLoading, showAlert, displayAlert} = useAppContext()
+  console.log(isLoading)
   //global state and useNavigate
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
   const handleChange = (e) => {
-    console.log(values);
-    console.log(e.target.name, 'target name');
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
+    const {name, email, password, isMember} = values
+    console.log(!email, !password)
+    if(!email || !password ) {
+      console.log("something missing")
+      displayAlert()
+      return
+    }
+    console.log(values)
+    
   };
 
   return (
@@ -32,7 +42,7 @@ const Register = () => {
         <Logo />
 
         <h3> {values.isMember ? 'Login' : 'Register'}</h3>
-        {values.showAlert && <Alert />}
+        {showAlert && <Alert />}
         {values.isMember && (
           <FormRow
             labelText="name"
@@ -47,16 +57,16 @@ const Register = () => {
           type="password"
           name="password"
           handleChange={handleChange}
-          value={values.name}
+          value={values.password}
         />
         <FormRow
           labelText="email"
           type="email"
           name="email"
           handleChange={handleChange}
-          value={values.name}
+          value={values.email}
         />
-        <button type="submit" className="btn btn-block">
+        <button type="submit" className="btn btn-block" onClick = {onSubmit}>
           Submit
         </button>
         <p></p>
