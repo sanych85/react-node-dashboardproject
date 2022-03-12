@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FormRow, Logo, Alert } from '../components';
 import Wrapper from '../assets/wrappers/RegisterPage';
 import { useAppContext } from '../context/appContext';
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from 'react-router-dom';
 const initialState = {
   name: '',
   email: '',
@@ -13,8 +13,16 @@ const initialState = {
 
 const Register = () => {
   const [values, setValues] = useState(initialState);
-  const navigate = useNavigate()
-  const { user, isLoading, showAlert, displayAlert, registerUser } = useAppContext();
+  const navigate = useNavigate();
+  const {
+    user,
+    isLoading,
+    showAlert,
+    displayAlert,
+    registerUser,
+    loginUser,
+    setupUser,
+  } = useAppContext();
   console.log(isLoading);
   //global state and useNavigate
   const toggleMember = () => {
@@ -27,7 +35,7 @@ const Register = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     const { name, email, password, isMember } = values;
-    console.log(!email, !password);
+    
     if (!email || !password) {
       console.log('something missing');
       displayAlert();
@@ -35,20 +43,29 @@ const Register = () => {
     }
     const currentUser = { name, email, password };
     if (isMember) {
+      setupUser({
+        currentUser,
+        endpoint: 'login',
+        alertText: 'Register successful! Redirecting',
+      });
       console.log('already a member');
     } else {
-      registerUser(currentUser);
+      setupUser({
+        currentUser,
+        endpoint: 'register',
+        alertText:  'Login successful! Redirecting',
+      });
     }
     console.log(values);
   };
-  useEffect(()=>{
-    if(user) {
-      setTimeout(()=> {
-        navigate('/')
-      }, 3000)
-  
-    }
-  }, [user,navigate])
+  // useEffect(()=>{
+  //   if(user) {
+  //     setTimeout(()=> {
+  //       navigate('/')
+  //     }, 3000)
+
+  //   }
+  // }, [user,navigate])
   return (
     <Wrapper classname="full-page">
       <form action="" className="form">
@@ -89,7 +106,7 @@ const Register = () => {
         <p></p>
         {values.isMember ? 'not a member yet' : 'already member'}
         <button type="button" onClick={toggleMember} className="member-btn">
-          {values.isMember ? 'login' : 'register'}
+          {!values.isMember ? 'login' : 'register'}
         </button>
       </form>
     </Wrapper>
