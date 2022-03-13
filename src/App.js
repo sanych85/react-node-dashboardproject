@@ -21,7 +21,7 @@ function App() {
             }
             >
             <Route index  element={<Stats />}></Route>
-            <Route path="allJobs" element={<AllJobs />}></Route>
+            <Route path="all-jobs" element={<AllJobs />}></Route>
             <Route path="profile" element={<Profile />}></Route>
             <Route path="add-job" element={<AddJob />}></Route>
            
