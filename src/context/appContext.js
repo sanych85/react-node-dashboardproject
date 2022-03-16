@@ -11,6 +11,11 @@ import {
   UPDATE_USER_BEGIN,
   UPDATE_USER_SUCCESS,
   UPDATE_USER_ERROR,
+  HANDLE_CHANGE,
+  CLEAR_VALUES,
+  CREATE_JOB_BEGIN,
+  CREATE_JOB_SUCCESS,
+  CREATE_JOB_ERROR
 } from './actions';
 import reducer from './reducer';
 import axios from 'axios';
@@ -29,10 +34,9 @@ const initialState = {
   isToggleSidebar: false,
   showSidebar: false,
   isEditing: false,
-  etiJibId: '',
+  editJobId: '',
   position: '',
   company: '',
-  jobLocation: userLocation || '',
   jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
   jobType: 'full-time',
   statusOptions: ['interview', 'decline', 'pending'],
@@ -160,6 +164,38 @@ const AppProvider = ({ children }) => {
 
     clearAlert();
   };
+  const handleChange = ({name,value})=> {
+    dispatch({type: HANDLE_CHANGE, payload:{name, value}})
+  }
+  const clearValues= ()=> {
+    dispatch({type: CLEAR_VALUES})
+  }
+
+  const createJob= async ()=> {
+    dispatch({type: CREATE_JOB_BEGIN})
+    const {jobLocation, position, company, jobType, token, status} = state
+    const job = {
+      jobLocation,
+      position,
+      company,
+      jobType,
+      token,
+      status
+    }
+    try {
+      dispatch({type: CREATE_JOB_SUCCESS})
+      dispatch({type: CLEAR_VALUES})
+      await authFetch.post('/jobs', job)
+      
+    }
+    catch(err) {
+      if(err.response.status=== 401) return
+      dispatch({type: CREATE_JOB_ERROR, payload: {msg:err.response.data.msg}})
+   
+    }
+    
+
+  }
   return (
     <AppContext.Provider
       value={{
@@ -169,6 +205,10 @@ const AppProvider = ({ children }) => {
         toggleSidebar,
         logoutUser,
         updateUser,
+        handleChange,
+        clearValues,
+        createJob,
+        
       }}>
       {children}
     </AppContext.Provider>
