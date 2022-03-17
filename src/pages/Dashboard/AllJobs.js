@@ -1,9 +1,14 @@
-import React from 'react'
-
+import { useEffect } from 'react';
+import { useAppContext } from '../../context/appContext';
+import { JobsContainer, SearchContainer } from '../../components';
 const AllJobs = () => {
-  return (
-    <div>AllJobs</div>
-  )
-}
 
-export default AllJobs
+  return (
+    <>
+      <SearchContainer />
+      <JobsContainer/>
+    </>
+  );
+};
+
+export default AllJobs;
