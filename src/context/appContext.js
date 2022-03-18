@@ -19,6 +19,10 @@ import {
   GET_ALL_JOBS_BEGIN,
   GET_ALL_JOBS_SUCCESS,
   GET_ALL_JOBS_ERROR,
+  SET_EDIT_JOB,
+  DELETE_JOB_BEGIN,
+  DELETE_JOB_SUCCESS,
+  DELETE_JOB_ERROR,
 } from './actions';
 import reducer from './reducer';
 import axios from 'axios';
@@ -217,8 +221,25 @@ const AppProvider = ({ children }) => {
       // logoutUser()
       // dispatch({ type: GET_ALL_JOBS_ERROR });
     }
-    clearAlert()
+    clearAlert();
   };
+  const setEditJob = (id) => {
+    dispatch({ type: SET_EDIT_JOB, payload: { id } });
+  };
+  const editJob = () => {
+    console.log(`edit job`);
+  };
+  const deleteJob = async (jobId) => {
+    dispatch({type: DELETE_JOB_BEGIN})
+    try {
+      await authFetch.delete(`/jobs/${jobId}`)
+      getAllJobs()
+    }
+    catch(err) {
+      console.log(err.response)
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -232,6 +253,9 @@ const AppProvider = ({ children }) => {
         clearValues,
         createJob,
         getAllJobs,
+        setEditJob,
+        deleteJob,
+        editJob,
       }}>
       {children}
     </AppContext.Provider>
