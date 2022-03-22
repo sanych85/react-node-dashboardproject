@@ -7,7 +7,7 @@ const FormRowSelect = ({ labelText, name, value, handleChange, list }) => {
         {labelText || name}
       </label>
       <select
-        name="jobType"
+        name={name}
         id=""
         value={value}
         onChange={handleChange}

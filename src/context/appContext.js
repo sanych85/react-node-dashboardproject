@@ -1,5 +1,6 @@
 import React from 'react';
 import { useContext, useReducer } from 'react';
+import { useHistory } from 'react-router-dom';
 import {
   CLEAR_ALERT,
   DISPLAY_ALERT,
@@ -23,6 +24,13 @@ import {
   DELETE_JOB_BEGIN,
   DELETE_JOB_SUCCESS,
   DELETE_JOB_ERROR,
+  EDIT_JOB_BEGIN,
+  EDIT_JOB_SUCCESS,
+  EDIT_JOB_ERROR,
+  SHOW_STATS_BEGIN,
+  SHOW_STATS_SUCCESS,
+  SHOW_STATS_ERROR,
+  CLEAR_FILTERS
 } from './actions';
 import reducer from './reducer';
 import axios from 'axios';
@@ -52,6 +60,13 @@ const initialState = {
   totalJobs: 0,
   numOfPages: 1,
   page: 1,
+  monthlyApplications: [],
+  stats: {},
+  search: '',
+  searchStatus: 'all',
+  searchType: "all",
+  sort: "latest",
+  sortOptions: ['latest', 'oldest', 'a-z', 'z-a']
 };
 
 const AppContext = React.createContext();
@@ -176,6 +191,7 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
   const handleChange = ({ name, value }) => {
+    console.log('|name|', name, '|value|', value);
     dispatch({ type: HANDLE_CHANGE, payload: { name, value } });
   };
   const clearValues = () => {
@@ -207,17 +223,24 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
   const getAllJobs = async () => {
+    const {search, searchStatus, searchType, sort} = state
+    console.log(search, searchStatus, searchType, sort)
+    let url = `/jobs?status=${searchStatus}&jobType=${searchType}&sort=${sort}`
+    if(search) {
+      url = url+`${search}`
+    }
+    console.log(url)
     dispatch({ type: GET_ALL_JOBS_BEGIN });
     try {
-      const { data } = await authFetch.get('/jobs');
+      const { data } = await authFetch.get(url);
       const { jobs, totalJobs, numOfPages } = data;
       dispatch({
         type: GET_ALL_JOBS_SUCCESS,
         payload: { jobs, totalJobs, numOfPages },
       });
-      console.log(jobs);
+   
     } catch (err) {
-      console.log(err);
+     
       // logoutUser()
       // dispatch({ type: GET_ALL_JOBS_ERROR });
     }
@@ -226,20 +249,66 @@ const AppProvider = ({ children }) => {
   const setEditJob = (id) => {
     dispatch({ type: SET_EDIT_JOB, payload: { id } });
   };
-  const editJob = () => {
+  const editJob = async () => {
+    dispatch({ type: EDIT_JOB_BEGIN });
+    try {
+      const { position, company, jobLocation, jobType, status } = state;
+      await authFetch.patch(`/jobs/${state.editJobId}`, {
+        company,
+        position,
+        jobLocation,
+        jobType,
+        status,
+      });
+      dispatch({
+        type: EDIT_JOB_SUCCESS,
+        payload: { msg: 'Job was successfully updated' },
+      });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (err) {
+      if (err.response.status === 401) {
+        return;
+      }
+      dispatch({
+        type: EDIT_JOB_ERROR,
+        payload: { msg: err.response.data.msg },
+      });
+      console.log(err);
+    }
     console.log(`edit job`);
+    clearAlert();
   };
   const deleteJob = async (jobId) => {
-    dispatch({type: DELETE_JOB_BEGIN})
+    dispatch({ type: DELETE_JOB_BEGIN });
     try {
-      await authFetch.delete(`/jobs/${jobId}`)
-      getAllJobs()
-    }
-    catch(err) {
-      console.log(err.response)
+      await authFetch.delete(`/jobs/${jobId}`);
+      getAllJobs();
+    } catch (err) {
+      console.log(err.response);
     }
   };
+  const showStats = async () => {
+    dispatch({ type: SHOW_STATS_BEGIN });
+    try {
+      const { data } = await authFetch('/jobs/showStats');
 
+      console.log('before dispatch', data);
+      dispatch({
+        type: SHOW_STATS_SUCCESS,
+        payload: {
+          stats: data.defaultStats,
+          monthlyApplications: data.monthlyApplications,
+        },
+      });
+    } catch (err) {
+      console.log(err.response);
+    }
+    clearAlert();
+  };
+  const clearFilters = ()=> {
+    dispatch({type:CLEAR_FILTERS})
+ 
+  }
   return (
     <AppContext.Provider
       value={{
@@ -256,6 +325,8 @@ const AppProvider = ({ children }) => {
         setEditJob,
         deleteJob,
         editJob,
+        showStats,
+        clearFilters
       }}>
       {children}
     </AppContext.Provider>

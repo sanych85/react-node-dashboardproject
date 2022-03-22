@@ -7,7 +7,7 @@ const Wrapper = styled.section`
   align-items: center;
   justify-content: end;
   flex-wrap: wrap;
-  gap: 1rem;
+  /* gap: 1rem; */
   .btn-container {
     background: var(--primary-100);
     border-radius: var(--borderRadius);

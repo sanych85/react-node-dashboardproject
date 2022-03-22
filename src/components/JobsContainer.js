@@ -3,15 +3,27 @@ import { useEffect } from 'react';
 import Loading from './Loading';
 import Job from './Job';
 import Wrapper from '../assets/wrappers/JobsContainer';
+import PageBtnContainer from './PageBtnContainer';
 
 const JobsContainer = () => {
-  const { getAllJobs, jobs, isLoading, page, totalJobs } = useAppContext();
+  const {
+    getAllJobs,
+    jobs,
+    isLoading,
+    page,
+    totalJobs,
+    search,
+    searchType,
+    searchStatus,
+    sort,
+    numOfPages,
+  } = useAppContext();
   useEffect(() => {
     getAllJobs();
-  }, []);
+  }, [search, searchType, searchStatus, sort]);
   console.log(jobs, 'jobs');
   if (isLoading) {
-    return <Loading center  />;
+    return <Loading center />;
   }
   if (jobs.length === 0) {
     return (
@@ -31,6 +43,8 @@ const JobsContainer = () => {
         })}
       </div>
       {/* <Loading center /> */}
+
+      {numOfPages > 1 && <PageBtnContainer />}
     </Wrapper>
   );
 };

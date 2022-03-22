@@ -1,8 +1,9 @@
 import { FormRow, Alert, FormRowSelect } from '../../components';
 import { useAppContext } from '../../context/appContext';
 import Wrapper from '../../assets/wrappers/DashboardFormPage';
-
+import { useNavigate } from 'react-router-dom';
 const AddJob = () => {
+  const navigate = useNavigate()
   const {
     showAlert,
     jobLocation,
@@ -25,10 +26,14 @@ const AddJob = () => {
   const handleJobInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    console.log(handleChange,"handleChange");
+    console.log("value", value)
+    // console.log(handleChange,"handleChange");
+    console.log(name, "name", value, "value")
+    console.log(e.target, "e.target")
     handleChange({name, value})
   };
   const handleSubmit = (e) => {
+    console.log("isEditing", isEditing)
     e.preventDefault();
     if (!position || !company || !jobLocation) {
       displayAlert();
@@ -36,6 +41,8 @@ const AddJob = () => {
     }
     if(isEditing) {
       editJob()
+      navigate('/jobs')
+      return
     }
     createJob()
   };
@@ -67,6 +74,7 @@ const AddJob = () => {
 
           <FormRowSelect
             name="status"
+            labelText="status"
             value={status}
             handleChange={handleJobInput}
             list={statusOptions}
@@ -74,7 +82,7 @@ const AddJob = () => {
           <FormRowSelect
             name="jobType"
             labelText="Job type"
-            value={status}
+            value={jobType}
             handleChange={handleJobInput}
             list={jobTypeOptions}
           />
